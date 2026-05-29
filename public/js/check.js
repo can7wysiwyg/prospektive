@@ -53,7 +53,7 @@ async function RoleCheck() {
     } else if(user.role === "student") {
         return authCont.innerHTML = `
        
-        <a href="/studentprofile"><i class="ti ti-user" aria-hidden="true"></i>Profile</a>
+        <a href="/studentpanel"><i class="ti ti-book" aria-hidden="true"></i>My Panel</a>
        
         
         

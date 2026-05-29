@@ -150,14 +150,14 @@ sendGradesCon.innerHTML = `
   <!-- MODULE NAME -->
   <div class="mb-3">
     <label class="form-label fw-semibold">
-      Module Name
+      Program Name
     </label>
 
     <input 
       type="text"
       class="form-control"
       id="module_name"
-      placeholder="Enter module name"
+      placeholder="Enter program name"
     />
   </div>
 

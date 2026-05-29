@@ -12,6 +12,7 @@ import AdminAuth from "./private/AdminAuth.js"
 import Pages from "./page/Pages.js"
 import AuthRoute from "./routes/AuthRoute.js"
 import LecRoute from "./private/LecRoute.js"
+import StudentRoute from "./private/StudentRoute.js"
 
 mongoose.connect(process.env.MONGO_DEVT_URL)
 
@@ -48,7 +49,7 @@ app.use(
         "'self'",
         "'unsafe-inline'",
         "https://cdnjs.cloudflare.com",
-        "https://cdn.jsdelivr.net",           // already here
+        "https://cdn.jsdelivr.net",           
         "https://in.paychangu.com",
       ],
       scriptSrcAttr: ["'unsafe-inline'"],
@@ -57,7 +58,7 @@ app.use(
         "'unsafe-inline'",
         "https://fonts.googleapis.com",
         "https://cdnjs.cloudflare.com",
-        "https://cdn.jsdelivr.net",           // already here
+        "https://cdn.jsdelivr.net",      
       ],
       workerSrc: [
         "'self'",
@@ -100,7 +101,7 @@ app.use(Pages)
 app.use(AdminAuth)
 app.use(AuthRoute)
 app.use(LecRoute)
-
+app.use(StudentRoute)
 
 
 app.listen(port, () => {

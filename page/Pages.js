@@ -105,6 +105,56 @@ try {
 })
 
 
+Pages.get('/studentpanel', async(req, res) => {
+try {
+
+    res.render('studentpanel')
+    
+} catch (error) {
+    console.error(`failed to load studentpanel page, ${error}`)
+    return res.redirect('/')
+}
+
+})
+
+
+Pages.get('/myprofile', async(req, res) => {
+try {
+
+    res.render('myprofile')
+    
+} catch (error) {
+    console.error(`failed to load myprofile page, ${error}`)
+    return res.redirect('/')
+}
+
+})
+
+
+Pages.get('/viewgrades', async(req, res) => {
+try {
+
+    res.render('viewgrades')
+    
+} catch (error) {
+    console.error(`failed to load viewgrades page, ${error}`)
+    return res.redirect('/')
+}
+
+})
+
+Pages.get('/myfees', async(req, res) => {
+try {
+
+    res.render('myfees')
+    
+} catch (error) {
+    console.error(`failed to load myfees page, ${error}`)
+    return res.redirect('/')
+}
+
+})
+
 
 
 

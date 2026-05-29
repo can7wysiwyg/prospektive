@@ -62,12 +62,14 @@ try {
             return res.json({msg: "Student does not exists..."})
          }
 
-         await Grades({
+         await Grades.create({
             lctr: req.user._id,
             student: studentId,
             module_name,
             grades_list
          })
+
+         
 
          res.json({message: "Successfully sent grades to student."})
 
