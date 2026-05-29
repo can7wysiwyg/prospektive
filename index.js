@@ -11,6 +11,7 @@ import mongoose from "mongoose";
 import AdminAuth from "./private/AdminAuth.js"
 import Pages from "./page/Pages.js"
 import AuthRoute from "./routes/AuthRoute.js"
+import LecRoute from "./private/LecRoute.js"
 
 mongoose.connect(process.env.MONGO_DEVT_URL)
 
@@ -98,6 +99,7 @@ app.use(
 app.use(Pages)
 app.use(AdminAuth)
 app.use(AuthRoute)
+app.use(LecRoute)
 
 
 

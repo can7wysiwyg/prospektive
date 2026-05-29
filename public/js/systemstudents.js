@@ -100,7 +100,18 @@ resLec?.students?.map(item => `
 
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
 
-        <button data-id="${item._id}" class="btn btn-sm btn-danger my-delete"
+              <button data-id="${item._id}"
+              data-bs-toggle="modal"
+          data-bs-target="#feesModal"
+           class="btn btn-sm btn-primary"
+           style="display:flex; align-items:center; gap:5px;"
+                      >
+           <i class="fas fa-file-alt"></i>
+           Fees
+        </button>
+
+
+        <button data-id="${item._id}" class="btn btn-sm btn-danger "
            style="display:flex; align-items:center; gap:5px;">
            <i class="fas fa-pen"></i>
            Manage Student
@@ -128,8 +139,68 @@ resLec?.students?.map(item => `
   </div>
   </div>
 
+
+  <!-- MODAL -->
+<!-- MODAL -->
+<div class="modal fade" id="feesModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">
+          Student Fees Status
+        </h5>
+
+        <button 
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal">
+        </button>
+      </div>
+
+      <div class="modal-body">
+
+        <input type="hidden" id="modalStudentId">
+
+        <div class="mb-3">
+
+          <h6>Fees Status</h6>
+
+          <div id="feesStatus">
+            Loading...
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>
        `  
 
+
+       document.querySelectorAll('[data-bs-target="#feesModal"]')
+.forEach(btn => {
+
+  btn.addEventListener('click', async function () {
+
+    const studentId = this.dataset.id;
+
+    console.log(studentId);
+
+    // put ID inside modal
+    document.getElementById('modalStudentId').value = studentId;
+
+    // EXAMPLE FETCH
+    // const res = await fetch(`/student-fees/${studentId}`);
+    // const data = await res.json();
+
+  });
+
+});
 
 
     }

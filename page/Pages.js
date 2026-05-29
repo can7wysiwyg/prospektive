@@ -79,5 +79,33 @@ try {
 })
 
 
+Pages.get('/lecturertasks', async(req, res) => {
+try {
+
+    res.render('lecturertasks')
+    
+} catch (error) {
+    console.error(`failed to load lecturertasks page, ${error}`)
+    return res.redirect('/')
+}
+
+})
+
+
+Pages.get('/sendgrades', async(req, res) => {
+try {
+
+    res.render('sendgrades')
+    
+} catch (error) {
+    console.error(`failed to load sendgrades page, ${error}`)
+    return res.redirect('/')
+}
+
+})
+
+
+
+
 
 export default Pages

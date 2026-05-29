@@ -1,4 +1,6 @@
 const navmenu = document.getElementById('navmenu')
+const school = localStorage.getItem('schoolKey')
+
 
 async function LoadMenu() {
     try {
@@ -25,6 +27,45 @@ async function LoadMenu() {
         
         
         `
+
+
+        if(!school) {
+        
+        return;
+
+    } else if(school) {
+
+        setInterval(() => {
+
+       const renew = async() => {
+           try {
+            
+             await fetch(`/auth/check-session?userKey=${school}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            
+           } catch (error) {
+            return
+           }
+        
+
+
+       }
+
+       renew()
+
+        
+
+    }, 60000)
+
+
+
+    }
+
+
         
     } catch (error) {
         return navmenu.innerHTML = `

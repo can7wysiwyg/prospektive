@@ -55,7 +55,7 @@ async function LoadDash() {
       <div class="dashboard-card">
 
         <div class="card-icon">
-          <i class="fa-solid fa-users"></i>
+          <i class="ti ti-users"></i>
         </div>
 
         <h4>Add Users</h4>
@@ -76,7 +76,7 @@ async function LoadDash() {
       <div class="dashboard-card">
 
         <div class="card-icon">
-          <i class="fa-solid fa-chalkboard-user"></i>
+          <i class="ti ti-chalkboard"></i>
         </div>
 
         <h4>Lecturers</h4>
@@ -97,7 +97,7 @@ async function LoadDash() {
       <div class="dashboard-card">
 
         <div class="card-icon">
-          <i class="fa-solid fa-user-graduate"></i>
+          <i class="ti ti-certificate"></i>
         </div>
 
         <h4> Students</h4>
