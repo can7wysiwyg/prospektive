@@ -40,5 +40,44 @@ try {
 })
 
 
+Pages.get('/adduser', async(req, res) => {
+try {
+
+    res.render('adduser')
+    
+} catch (error) {
+    console.error(`failed to load adduser page, ${error}`)
+    return res.redirect('/')
+}
+
+})
+
+
+Pages.get('/systemlecturers', async(req, res) => {
+try {
+
+    res.render('systemlecturers')
+    
+} catch (error) {
+    console.error(`failed to load adduser page, ${error}`)
+    return res.redirect('/')
+}
+
+})
+
+
+Pages.get('/systemstudents', async(req, res) => {
+try {
+
+    res.render('systemstudents')
+    
+} catch (error) {
+    console.error(`failed to load adduser page, ${error}`)
+    return res.redirect('/')
+}
+
+})
+
+
 
 export default Pages

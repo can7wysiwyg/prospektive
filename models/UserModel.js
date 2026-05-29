@@ -20,6 +20,10 @@ const UserSchema = mongoose.Schema({
         type: String,
         required: true
     },
+    dob:  {
+        type: Date,
+    
+    },
     role: {
         type: String,
         enum: ['admin', 'student', 'lecturer', 'default'],

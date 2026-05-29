@@ -362,6 +362,66 @@ body { margin: 0; font-family: 'DM Sans', sans-serif; background: var(--school-c
     }
 
 
+      .dashboard-card {
+    background: white;
+    border-radius: 18px;
+    padding: 30px 25px;
+    transition: 0.3s ease;
+    border: 1px solid var(--school-light);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    height: 100%;
+  }
+
+  .dashboard-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 18px 35px rgba(0,0,0,0.12);
+  }
+
+  .card-icon {
+    width: 75px;
+    height: 75px;
+    background: var(--school-navy);
+    color: var(--school-gold);
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    margin-bottom: 20px;
+  }
+
+  .dashboard-card h4 {
+    color: var(--school-navy);
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  .dashboard-card p {
+    color: var(--school-muted);
+    font-size: 15px;
+    margin-bottom: 22px;
+  }
+
+  .dashboard-btn {
+    background: var(--school-gold);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .dashboard-btn:hover {
+    background: #ad861f;
+    color: white;
+  }
+
+
+
+
 /* FOOTER STRIP */
 .footer-strip {
   background: var(--school-navy);
