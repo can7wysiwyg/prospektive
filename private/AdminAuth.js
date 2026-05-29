@@ -4,6 +4,7 @@ import User from "../models/UserModel.js"
 import bcrypt from "bcrypt";
 import verify from "../middleware/verify.js";
 import verifyAdmin from "../middleware/adminWare.js";
+import Fees from "../models/FeesModel.js";
 
 AdminAuth.post("/admin/register", async (req, res) => {
   try {
@@ -152,7 +153,7 @@ if(!students || students.length === 0) {
   return res.json({msg: "We have no students at the moment"})
 }
 
-return res.json({students})
+ res.json({students})
 
 } catch (error) {
    console.log(`cannot view students, ${error}`)
@@ -161,6 +162,38 @@ return res.json({students})
 
 })
 
+//fees
 
+AdminAuth.get('/admin/view-fees/:id', verify, verifyAdmin, async(req, res) => {
+
+  try {
+   if(!req.user) {
+      return res.json({msg: "Authorization Error!"})
+    }
+
+    const admin = await User.findOne({_id: req.user._id, role: 'admin'})
+
+    if(!admin) {
+      return res.json({msg: "We are in a pickle!"})
+    }
+
+    const {id} = req.params
+
+    if(!id) {
+      return res.json({msg: 'Authorization Not Available'})
+    }
+
+    const fees = await Fees.findOne({student: id}) 
+
+    res.json({fees})
+
+
+    
+  } catch (error) {
+     console.log(`cannot view student fees, ${error}`)
+  return res.json({msg: "Cannot view student fees"})
+  }
+
+})
 
 export default AdminAuth

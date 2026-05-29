@@ -182,26 +182,81 @@ resLec?.students?.map(item => `
        `  
 
 
-       document.querySelectorAll('[data-bs-target="#feesModal"]')
+document.querySelectorAll('[data-bs-target="#feesModal"]')
 .forEach(btn => {
 
   btn.addEventListener('click', async function () {
 
     const studentId = this.dataset.id;
 
-    console.log(studentId);
+    const feesStatus = document.getElementById('feesStatus');
+    const hiddenId = document.getElementById('modalStudentId');
 
-    // put ID inside modal
-    document.getElementById('modalStudentId').value = studentId;
+    hiddenId.value = studentId;
 
-    // EXAMPLE FETCH
-    // const res = await fetch(`/student-fees/${studentId}`);
-    // const data = await res.json();
+  
+    feesStatus.innerHTML = "Loading...";
+
+    try {
+
+      const res = await fetch(`/admin/view-fees/${studentId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${schoolkey}`
+        }
+      });
+
+      const data = await res.json();
+
+      const fees = data?.fees;
+
+      
+      if (!fees) {
+        feesStatus.innerHTML = `
+          <div style="color:#b91c1c; font-weight:600;">
+            Student has not paid fees yet.
+          </div>
+        `;
+        return;
+      }
+
+      
+      if (fees.status === "pending") {
+        feesStatus.innerHTML = `
+          <div style="color:#b45309; font-weight:600;">
+            Payment Pending Confirmation
+          </div>
+        `;
+        return;
+      }
+
+     
+      if (fees.status === "paid") {
+        feesStatus.innerHTML = `
+          <div style="color:#15803d; font-weight:600;">
+            Fees Paid Successfully
+          </div>
+        `;
+        return;
+      }
+
+    } catch (error) {
+
+      console.log("Fees modal error:", error);
+
+      feesStatus.innerHTML = `
+        <div style="color:#b91c1c; font-weight:600;">
+          Failed to load fees status.
+        </div>
+      `;
+    }
 
   });
 
 });
 
+       
 
     }
 
