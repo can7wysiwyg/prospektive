@@ -46,17 +46,18 @@ async function AddUser() {
     if(data?.user?.role === "admin") {
 
          addUserCon.innerHTML = `
-         
+                     <div id="formclear">
                     <div style="max-width:1000px; margin-top: 3.3rem; margin-bottom: 3.3rem; margin:0 auto; background:#fff; border-radius:16px; box-shadow:0 12px 40px rgba(0,0,0,0.12); overflow:hidden;">
                     <div style="background:#007bff; color:#fff; padding:32px; text-align:center;">
         <h1 style="margin:0; font-size:2.3rem; font-weight:700;">
-          <i class="fas fa-user"></i> Add User
+          <i class="fas fa-user"></i> Add Student
         </h1>
         <p id="statusMessage" style="margin:12px 0 0; font-size:1rem; opacity:0.9; min-height:28px;"></p>
       </div>
 
 
               <div style="padding:32px;">
+              
           <form id="cForm" >
           
 
@@ -74,31 +75,29 @@ async function AddUser() {
               <input type="text" id="phone" required placeholder="Phone" style="width:100%; padding:14px; border:1px solid #ddd; border-radius:8px;">
             </div>
 
-            <div style="margin-bottom:24px;">
-              <label style="display:block; margin-bottom:8px; font-weight:600;"> Date of Birth <span style="color:red;">*</span></label>
-              <input type="date" id="dob" required placeholder="Date of Birth" style="width:100%; padding:14px; border:1px solid #ddd; border-radius:8px;">
-            </div>
-
-
-
-              <div style="margin-bottom:24px;">
-              <label style="display:block; margin-bottom:8px; font-weight:600;"> Password <span style="color:red;">*</span></label>
-              <input type="password" id="password" required placeholder="Password" style="width:100%; padding:14px; border:1px solid #ddd; border-radius:8px;">
-            </div>
-
-
             
             <div style="margin-bottom:24px;">
-              <label style="display:block; margin-bottom:8px; font-weight:600;">Find District <span style="color:red;">*</span></label>
-              <select id="role" required style="width:100%; padding:14px; border:1px solid #ddd; border-radius:8px;">
-                <option value="">Select User Type</option>
-                <option value="student">Student</option>
-                <option value="lecturer">Lecturer</option>
+              <label style="display:block; margin-bottom:8px; font-weight:600;"> Student Registration Number <span style="color:red;">*</span></label>
+              <input type="text" id="student_reg" required placeholder="Student Registration Number" style="width:100%; padding:14px; border:1px solid #ddd; border-radius:8px;">
+            </div>
+            
+             <div style="margin-bottom:24px;">
+              <label style="display:block; margin-bottom:8px; font-weight:600;"> Program <span style="color:red;">*</span></label>
+              <input type="text" id="program" required placeholder="Program" style="width:100%; padding:14px; border:1px solid #ddd; border-radius:8px;">
+            </div>
+            
+                           <div style="margin-bottom:24px;">
+              <label style="display:block; margin-bottom:8px; font-weight:600;">Student Gender <span style="color:red;">*</span></label>
+              <select id="gender" required style="width:100%; padding:14px; border:1px solid #ddd; border-radius:8px;">
+                <option value="">Select Gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
 
 
               </select>
             </div>
 
+            
             
             <div style="display:flex; gap:16px; justify-content:flex-end;">
               
@@ -110,7 +109,10 @@ async function AddUser() {
           </form>
         </div>
 
-         </div>       
+         </div>   
+         
+                   </div>
+
                   
          `
 
@@ -127,9 +129,12 @@ async function AddUser() {
             const fullname = document.getElementById('fullname').value 
             const email = document.getElementById('email').value 
             const phone = document.getElementById('phone').value 
-            const dob = document.getElementById('dob').value 
-            const password = document.getElementById('password').value 
-            const role = document.getElementById('role').value
+            const gender = document.getElementById('gender').value 
+            const program = document.getElementById('program').value 
+            const student_reg = document.getElementById('student_reg').value 
+
+
+            
            
         const Cacc = await fetch('/admin/create-user', {
             method: 'POST',
@@ -137,7 +142,7 @@ async function AddUser() {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${schoolkey}`
             },
-            body: JSON.stringify({fullname, email, phone, role, dob, password})
+            body: JSON.stringify({fullname, email, phone, gender, program, student_reg})
         })
             
 
@@ -153,14 +158,83 @@ async function AddUser() {
                     `
 
         } else if(resAcc.message) {
-                      submitBtn.disabled = false 
-                    submitBtn.textContent = "Submit" 
-  
+          alert(resAcc.message)
+                  const formclear = document.getElementById('formclear')
+                  
+                  const stu_details = resAcc?.stu_details
 
-            return statusMessage.innerHTML = `
-                    <span>${resAcc.message} </span>
-                    
-                    `
+                 return formclear.innerHTML = `
+
+                 <div class="container profile-wrapper">
+
+  <div class="row justify-content-center">
+
+    <div class="col-md-6">
+
+      <div class="profile-card">
+
+        <div class="avatar">
+          <i class="ti ti-user"></i>
+        </div>
+
+        <h3 class="profile-title">
+         Refresh page to add new student
+        </h3>
+
+         <form>
+
+          <!-- FULLNAME -->
+          <div class="mb-3">
+            <label class="form-label">Full Name</label>
+            <input 
+              type="text"
+              class="form-control"
+              value="${stu_details.name}"
+              disabled
+            />
+          </div>
+
+          <!-- EMAIL -->
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input 
+              type="email"
+              class="form-control"
+              value="${stu_details?.email}"
+              disabled
+            />
+          </div>
+
+          
+          <!-- PASSWORD -->
+          <div class="mb-4">
+            <label class="form-label">Password</label>
+            <input 
+              type="text"
+              class="form-control"
+              value="${stu_details?.pass}"
+              disabled
+            />
+          </div>
+
+          
+        </form>
+
+
+
+
+
+        </div>
+        </div>
+        </div>
+
+                 
+                 
+                 
+                 
+                 
+                 
+                 `
 
 
         }

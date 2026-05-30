@@ -36,7 +36,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
  app.use(fileUpload({
-    useTempFiles: true
+    useTempFiles: false,
+      limits: { fileSize: 10 * 1024 * 1024 }, 
+
 }))
 
 

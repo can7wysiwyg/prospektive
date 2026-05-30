@@ -64,7 +64,7 @@ async function LoadDash() {
           Manage and register new system users into the platform.
         </p>
 
-        <a href="/adduser" class="dashboard-btn">
+        <a href="/addmethod" class="dashboard-btn">
           Add Users
         </a>
 

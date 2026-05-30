@@ -156,6 +156,31 @@ try {
 })
 
 
+Pages.get('/addmethod', async(req, res) => {
+try {
+
+    res.render('addmethod')
+    
+} catch (error) {
+    console.error(`failed to load addmethod page, ${error}`)
+    return res.redirect('/')
+}
+
+})
+
+Pages.get('/importstu', async(req, res) => {
+try {
+
+    res.render('importstu')
+    
+} catch (error) {
+    console.error(`failed to load importstu page, ${error}`)
+    return res.redirect('/')
+}
+
+})
+
+
 
 
 export default Pages

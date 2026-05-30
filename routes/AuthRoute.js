@@ -3,7 +3,7 @@ const AuthRoute = express.Router()
 import User from "../models/UserModel.js"
 import  verify  from "../middleware/verify.js"
 import { encryptId, decryptId } from "../middleware/cryptic.js"
-import bcrypt from "bcrypt"
+import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken";
 
 

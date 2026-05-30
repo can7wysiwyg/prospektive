@@ -24,6 +24,17 @@ const UserSchema = mongoose.Schema({
         type: Date,
     
     },
+    student_reg: {
+       type: String,
+       unique: true
+       
+    },
+    gender: {
+    type: String
+    },
+    program: {
+    type: String
+    },
     role: {
         type: String,
         enum: ['admin', 'student', 'lecturer', 'default'],
