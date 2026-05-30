@@ -10,7 +10,7 @@ async function LoadMenu() {
 
 <!-- NAVBAR -->
 <nav class="school-nav">
-  <a href="#" class="brand">
+  <a href="/" class="brand">
     <div class="brand-crest">DB</div>
     <div>
       <div class="brand-name">Don Bosco</div>
@@ -18,7 +18,7 @@ async function LoadMenu() {
     </div>
   </a>
   <ul class="nav-links">
-    <li><a href="#" class="active"><i class="ti ti-home" aria-hidden="true"></i>Home</a></li>
+    <li><a href="/" class="active"><i class="ti ti-home" aria-hidden="true"></i>Home</a></li>
           <li id="authCont">  </li>
     <li id="authLink"></li>
   </ul>
