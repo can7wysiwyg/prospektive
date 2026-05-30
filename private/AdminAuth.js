@@ -16,7 +16,12 @@ function generatePassword(length = 10) {
 }
 
 
-
+function generateLecturerReg() {
+    const prefix = "LEC";
+    const randomPart = Math.random().toString(36).substring(2, 10).toUpperCase(); 
+    const timestamp = Date.now().toString().slice(-4); 
+    return `${prefix}${randomPart}${timestamp}`;
+}
 
 AdminAuth.post("/admin/register", async (req, res) => {
   try {
@@ -47,6 +52,7 @@ AdminAuth.post("/admin/register", async (req, res) => {
     await User.create({
       fullname,
       email,
+      student_reg: generateLecturerReg(),
       password: hashedPassword,
     });
 
@@ -208,6 +214,80 @@ const userExists = await User.findOne({
     return res.json({ msg: `Failed to register` });
   }
 });
+
+
+
+
+AdminAuth.post("/admin/create-lecturer", verify, verifyAdmin, async (req, res) => {
+  try {
+
+    if(!req.user) {
+      return res.json({msg: "Authorization Error!"})
+    }
+
+    const admin = await User.findOne({_id: req.user._id, role: 'admin'})
+
+    if(!admin) {
+      return res.json({msg: "We are in a pickle!"})
+    }
+
+
+    const { fullname, email, phone, gender } = req.body;
+
+    if (!fullname || !email || !phone  || !gender) {
+      return res.json({ msg: `Field cannot be empty!` });
+    }
+
+        let regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+    if (email?.trim() && !regex.test(email.trim())) {
+  return res.json({ msg: "Invalid Email address" });
+}
+   const cleanEmail = email && email.trim() !== "" 
+                   ? email.trim().toLowerCase() 
+                   : null;
+
+const userExists = await User.findOne({
+  $or: [
+    { phone: phone },
+    ...(cleanEmail ? [{ email: cleanEmail }] : [])
+  ]
+});
+
+
+    if (userExists) {
+      return res.json({
+        msg: `Email or Phone Number is in use by someone in this system`,
+      });
+    }
+
+    const plainPassword = generatePassword();
+      const hashedPassword = await bcrypt.hash(plainPassword, 10);
+
+   const final = await User.create({
+      fullname,
+      email: cleanEmail,
+      phone,
+      role: "lecturer",
+      gender,
+     student_reg: generateLecturerReg(),
+      password: hashedPassword,
+    });
+
+    let lec_details = {
+      name: final.fullname,
+      email: final.email,
+      phone: final.phone,
+      pass: plainPassword
+    }
+
+    res.json({ message: "Lecturer Account Created Successfully!", lec_details });
+  } catch (error) {
+    console.log(`failed to register  ${error}`)
+    return res.json({ msg: `Failed to register` });
+  }
+});
+
 
 
 AdminAuth.get('/admin/view-lecturers', verify, verifyAdmin, async(req, res) => {

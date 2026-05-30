@@ -13,8 +13,8 @@ const UserSchema = mongoose.Schema({
     },
     phone:  {        
         type: Number,
-
-        unique: true
+        unique: true,
+        sparse: true
     },
     password:  {
         type: String,
@@ -26,7 +26,8 @@ const UserSchema = mongoose.Schema({
     },
     student_reg: {
        type: String,
-       unique: true
+       sparse: true,
+       
        
     },
     gender: {
