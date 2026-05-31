@@ -118,7 +118,7 @@ if(!req.user) {
       const email       = String(row['email']       || row['Email']      || '').trim().toLowerCase();
       const phone       = String(row['phone']       || row['Phone']      || '').trim();
       const student_reg = String(row['student_reg'] || row['Student Reg']|| '').trim();
-      const program     = String(row['program']     || row['Program']    || '').trim();
+      
       const gender      = String(row['gender']      || row['Gender']     || '').trim();
 
       if (!fullname || !email || !student_reg) {
@@ -138,12 +138,22 @@ if(!req.user) {
       const plainPassword = generatePassword();
       const hashedPassword = await bcrypt.hash(plainPassword, 10);
 
+      const programs = await Program.find();
+
+if (!programs.length) {
+  return res.json({ msg: "No programs available" });
+}
+
+const randomProgram =
+  programs[Math.floor(Math.random() * programs.length)];
+
       await new User({
         fullname,
         email,
         phone: phone ? Number(phone.replace(/\D/g, '')) : undefined,
         student_reg,
-        program,
+        program: randomProgram.prog_id,
+
         gender,
         password: hashedPassword,
         role: 'student',
@@ -179,9 +189,9 @@ AdminAuth.post("/admin/create-user", verify, verifyAdmin, async (req, res) => {
     }
 
 
-    const { fullname, email, phone,  student_reg, program, gender } = req.body;
+    const { fullname, email, phone,  student_reg, gender } = req.body;
 
-    if (!fullname || !email || !phone || !student_reg || !program || !gender) {
+    if (!fullname || !email || !phone || !student_reg  || !gender) {
       return res.json({ msg: `Field cannot be empty!` });
     }
 
@@ -212,13 +222,23 @@ const userExists = await User.findOne({
     const plainPassword = generatePassword();
       const hashedPassword = await bcrypt.hash(plainPassword, 10);
 
+      const programs = await Program.find();
+
+if (!programs.length) {
+  return res.json({ msg: "No programs available" });
+}
+
+const randomProgram =
+  programs[Math.floor(Math.random() * programs.length)];
+
    const final = await User.create({
       fullname,
       email: cleanEmail,
       phone,
       role: "student",
       student_reg,
-      program,
+        program: randomProgram.prog_id,
+
       gender,
       password: hashedPassword,
     });

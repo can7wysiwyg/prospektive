@@ -81,11 +81,7 @@ async function AddUser() {
               <input type="text" id="student_reg" required placeholder="Student Registration Number" style="width:100%; padding:14px; border:1px solid #ddd; border-radius:8px;">
             </div>
             
-             <div style="margin-bottom:24px;">
-              <label style="display:block; margin-bottom:8px; font-weight:600;"> Program <span style="color:red;">*</span></label>
-              <input type="text" id="program" required placeholder="Program" style="width:100%; padding:14px; border:1px solid #ddd; border-radius:8px;">
-            </div>
-            
+             
                            <div style="margin-bottom:24px;">
               <label style="display:block; margin-bottom:8px; font-weight:600;">Student Gender <span style="color:red;">*</span></label>
               <select id="gender" required style="width:100%; padding:14px; border:1px solid #ddd; border-radius:8px;">
@@ -130,7 +126,7 @@ async function AddUser() {
             const email = document.getElementById('email').value 
             const phone = document.getElementById('phone').value 
             const gender = document.getElementById('gender').value 
-            const program = document.getElementById('program').value 
+             
             const student_reg = document.getElementById('student_reg').value 
 
 
@@ -142,7 +138,7 @@ async function AddUser() {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${schoolkey}`
             },
-            body: JSON.stringify({fullname, email, phone, gender, program, student_reg})
+            body: JSON.stringify({fullname, email, phone, gender, student_reg})
         })
             
 
