@@ -46,6 +46,15 @@ async function ViewLecturers() {
 
     if(data?.user?.role === "admin") {
 
+         const reqProgs = await fetch('/show-programs')
+         const resProgs = await reqProgs.json() 
+
+         if(resProgs.msg) {
+          return viewLecsCon.innerHTML = `
+          <p class="text-center">${resProgs.msg}</p>
+          `
+         }
+
         const reqLec = await fetch('/admin/view-lecturers', {
             method: 'GET',
             headers: {
@@ -55,7 +64,8 @@ async function ViewLecturers() {
         }) 
 
         const resLec = await reqLec.json()
-
+            
+        
        
        viewLecsCon.innerHTML = `
 <div class="container py-4">
@@ -87,6 +97,25 @@ async function ViewLecturers() {
               <label class="form-label">Phone</label>
               <input type="text" class="form-control" id="phone" placeholder="Enter phone">
             </div>
+
+
+            <div style="margin-bottom:24px;">
+              <label style="display:block; margin-bottom:8px; font-weight:600;">Assign Program <span style="color:red;">*</span></label>
+              <select id="programm" required style="width:100%; padding:14px; border:1px solid #ddd; border-radius:8px;">
+                <option value="">Select Program</option>
+
+                ${
+                  resProgs?.programs?.map(item => `
+                    <option value="${item.prog_id}">${item.prog_name}</option>
+                    `).join('')
+                }
+                
+              
+
+
+              </select>
+            </div>
+
 
              <div style="margin-bottom:24px;">
               <label style="display:block; margin-bottom:8px; font-weight:600;">Lecturer Gender <span style="color:red;">*</span></label>
@@ -137,7 +166,7 @@ async function ViewLecturers() {
                              style="width:50px;height:50px;">
                           <i class="ti ti-user"></i>
                         </div>
-                        <div class="ms-3">
+                        <dsiv class="ms-3">
                           <h6 class="mb-1">${item.fullname}</h6>
                           <small class="text-muted">Lecturer</small>
                         </div>
@@ -150,9 +179,14 @@ async function ViewLecturers() {
                         <i class="ti ti-phone me-2"></i>${item.phone || 'N/A'}
                       </p>
 
+                      <p class="mb-3">
+                        <i class="ti ti-chalkboard me-2"></i> Lecturer in <span class="text-danger"> ${item.program.prog_name} </span>
+                      </p>
+
+
                       <button data-id="${item._id}" 
                               class="btn btn-outline-danger btn-sm my-delete w-100">
-                        <i class="ti ti-settings me-1"></i> Manage Lecturer
+                        <i class="ti ti-settings me-1"></i> Delete Lecturer
                       </button>
                     </div>
                   </div>
@@ -173,6 +207,52 @@ async function ViewLecturers() {
 `;
 
 
+
+const DelLec = document.querySelectorAll('.my-delete')
+
+DelLec.forEach(btn => {
+  
+  btn.addEventListener('click', async(e) => {
+    const value = e.target.dataset.id
+     
+    if(!value) {
+      alert("Action Not Possible")
+      return; 
+    }
+
+    btn.textContent = "Deleting"
+    btn.disabled = true 
+   console.log(value)
+    const reqDel = await fetch(`/admin/erase-user/${value}`, {
+      method: "DELETE",
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${schoolkey}`
+      }
+    })
+
+    const resDel = await reqDel.json() 
+
+    if(resDel.msg) {
+      alert(resDel.msg)
+       btn.textContent = "Delete Lecturer"
+    btn.disabled = false 
+    return 
+
+    } else if(resDel.message) {
+      alert(resDel.message)
+       btn.textContent = "Delete Lecturer"
+    btn.disabled = false 
+    window.location.reload()
+
+    }
+
+
+
+
+  })
+})
+
 document.getElementById('cForm').addEventListener('submit', async(e) => {
         e.preventDefault() 
                      const statusMessage = document.getElementById('statusMessage')
@@ -187,6 +267,9 @@ document.getElementById('cForm').addEventListener('submit', async(e) => {
             const email = document.getElementById('email').value 
             const phone = document.getElementById('phone').value 
             const gender = document.getElementById('gender').value 
+            const prog_id = document.getElementById('programm').value 
+
+
             
 
             
@@ -197,7 +280,7 @@ document.getElementById('cForm').addEventListener('submit', async(e) => {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${schoolkey}`
             },
-            body: JSON.stringify({fullname, email, phone, gender})
+            body: JSON.stringify({fullname, email, phone, gender, prog_id})
         })
             
 

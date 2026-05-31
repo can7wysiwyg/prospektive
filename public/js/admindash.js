@@ -65,7 +65,7 @@ async function LoadDash() {
         </p>
 
         <a href="/addmethod" class="dashboard-btn">
-          Add Users
+          Add Students
         </a>
 
       </div>
@@ -86,7 +86,7 @@ async function LoadDash() {
         </p>
 
         <a href="/systemlecturers" class="dashboard-btn">
-          View 
+         Add Lecturers 
         </a>
 
       </div>
@@ -108,6 +108,28 @@ async function LoadDash() {
 
         <a href="/systemstudents" class="dashboard-btn">
           View Students
+        </a>
+
+      </div>
+    </div>
+
+
+    <!--  Programs -->
+    <div class="col-md-4">
+      <div class="dashboard-card">
+
+        <div class="card-icon">
+          <i class="ti ti-certificate"></i>
+        </div>
+
+        <h4> Programs</h4>
+
+        <p>
+          View Programs and enroled students.
+        </p>
+
+        <a href="/progsstudents" class="dashboard-btn">
+          View Programs
         </a>
 
       </div>

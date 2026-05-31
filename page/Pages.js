@@ -181,6 +181,20 @@ try {
 })
 
 
+Pages.get('/progsstudents', async(req, res) => {
+try {
+
+    res.render('progsstudents')
+    
+} catch (error) {
+    console.error(`failed to load progsstudents page, ${error}`)
+    return res.redirect('/')
+}
+
+})
+
+
+
 
 
 export default Pages

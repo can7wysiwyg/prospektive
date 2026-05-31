@@ -13,6 +13,7 @@ import Pages from "./page/Pages.js"
 import AuthRoute from "./routes/AuthRoute.js"
 import LecRoute from "./private/LecRoute.js"
 import StudentRoute from "./private/StudentRoute.js"
+import PublicRoute from "./routes/PublicRoute.js"
 
 mongoose.connect(process.env.MONGO_DEVT_URL)
 
@@ -104,7 +105,7 @@ app.use(AdminAuth)
 app.use(AuthRoute)
 app.use(LecRoute)
 app.use(StudentRoute)
-
+app.use(PublicRoute)
 
 app.listen(port, () => {
     console.log(`Your system is running on port ${port}`)

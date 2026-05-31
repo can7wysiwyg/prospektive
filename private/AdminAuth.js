@@ -1,7 +1,6 @@
 import express from "express"
 const AdminAuth = express.Router()
 import User from "../models/UserModel.js"
-//import bcrypt from "bcrypt";
 import verify from "../middleware/verify.js";
 import verifyAdmin from "../middleware/adminWare.js";
 import Fees from "../models/FeesModel.js";
@@ -9,6 +8,9 @@ import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
 import XLSX from "xlsx"
 import bcrypt from "bcryptjs"
+import Program from "../models/ProgramModel.js";
+import Teaching from "../models/TeachModel.js";
+import mongoose from "mongoose";
 
 function generatePassword(length = 10) {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789@#$!';
@@ -22,6 +24,14 @@ function generateLecturerReg() {
     const timestamp = Date.now().toString().slice(-4); 
     return `${prefix}${randomPart}${timestamp}`;
 }
+
+function generateProgId() {
+    const prefix = "PROG-";
+    const randomPart = Math.random().toString(36).substring(2, 10).toUpperCase(); 
+    const timestamp = Date.now().toString().slice(-4); 
+    return `${prefix}${randomPart}${timestamp}`;
+}
+
 
 AdminAuth.post("/admin/register", async (req, res) => {
   try {
@@ -66,6 +76,17 @@ AdminAuth.post("/admin/register", async (req, res) => {
 
 AdminAuth.post('/admin/import-students', verify, verifyAdmin, async (req, res) => {
   try {
+if(!req.user) {
+      return res.json({msg: "Authorization Error!"})
+    }
+
+    const admin = await User.findOne({_id: req.user._id, role: 'admin'})
+
+    if(!admin) {
+      return res.json({msg: "We are in a pickle!"})
+    }
+
+
     if (!req.files || !req.files.file) {
       return res.status(400).json({ msg: 'No file uploaded.' });
     }
@@ -216,6 +237,52 @@ const userExists = await User.findOne({
 });
 
 
+AdminAuth.delete('/admin/erase-user/:id', verify, verifyAdmin, async(req, res) => {
+try {
+ const {id} = req.params
+
+
+  if(!req.user || !id) {
+      return res.json({msg: "Authorization Error!"})
+
+
+    }
+
+    const admin = await User.findOne({_id: req.user._id, role: 'admin'})
+
+    if(!admin) {
+      return res.json({msg: "We are in a pickle!"})
+    }
+
+   const exists = await User.findById(id)
+
+    if(!exists) {
+      return res.json({msg: "User does not exists!"})
+    }
+
+
+    await User.findByIdAndDelete(id)
+   
+    const teach = await Teaching.findOne({lect_urer: id}) 
+
+    if(teach) {
+      await Teaching.findByIdAndDelete(teach._id)
+
+          return res.json({message: "successfully deleted user"})
+
+    }
+    
+
+    return res.json({message: "successfully deleted user"})
+
+  
+} catch (error) {
+  console.log(`failed to delete user ${error}`)
+    return res.json({ msg: `Failed to delete user` });
+
+}
+
+})
 
 
 AdminAuth.post("/admin/create-lecturer", verify, verifyAdmin, async (req, res) => {
@@ -232,9 +299,9 @@ AdminAuth.post("/admin/create-lecturer", verify, verifyAdmin, async (req, res) =
     }
 
 
-    const { fullname, email, phone, gender } = req.body;
+    const { fullname, email, phone, gender, prog_id } = req.body;
 
-    if (!fullname || !email || !phone  || !gender) {
+    if (!fullname || !email || !phone  || !gender || !prog_id) {
       return res.json({ msg: `Field cannot be empty!` });
     }
 
@@ -273,7 +340,21 @@ const userExists = await User.findOne({
      student_reg: generateLecturerReg(),
       password: hashedPassword,
     });
+    
 
+    let lect_urer = final._id
+    
+
+
+
+await Teaching.create({
+  lect_urer,
+   prog_id
+    
+});
+
+
+    //
     let lec_details = {
       name: final.fullname,
       email: final.email,
@@ -290,6 +371,8 @@ const userExists = await User.findOne({
 
 
 
+
+
 AdminAuth.get('/admin/view-lecturers', verify, verifyAdmin, async(req, res) => {
 try {
   if(!req.user) {
@@ -301,8 +384,54 @@ try {
     if(!admin) {
       return res.json({msg: "We are in a pickle!"})
     }
- 
-const lecturers = await User.find({role: "lecturer"})
+
+    const lecturers = await User.aggregate([
+  {
+    $match: {
+      role: "lecturer"
+    }
+  },
+
+  {
+    $lookup: {
+      from: "teachings",
+      localField: "_id",
+      foreignField: "lect_urer",
+      as: "teaching"
+    }
+  },
+
+  {
+    $unwind: {
+      path: "$teaching",
+      preserveNullAndEmptyArrays: true
+    }
+  },
+
+  {
+    $lookup: {
+      from: "programs",
+      localField: "teaching.prog_id",
+      foreignField: "prog_id",
+      as: "program"
+    }
+  },
+
+  {
+    $unwind: {
+      path: "$program",
+      preserveNullAndEmptyArrays: true
+    }
+  },
+
+  {
+    $project: {
+      password: 0,
+      accessToken: 0,
+      refreshToken: 0
+    }
+  }
+]);
 
 if(!lecturers || lecturers.length === 0) {
   return res.json({msg: "We have no lecturers at the moment"})
@@ -376,6 +505,78 @@ AdminAuth.get('/admin/view-fees/:id', verify, verifyAdmin, async(req, res) => {
      console.log(`cannot view student fees, ${error}`)
   return res.json({msg: "Cannot view student fees"})
   }
+
+})
+
+
+AdminAuth.post('/admin/create-program', verify, verifyAdmin, async(req, res) => {
+try {
+if(!req.user) {
+      return res.json({msg: "Authorization Error!"})
+    }
+
+    const admin = await User.findOne({_id: req.user._id, role: 'admin'})
+
+    if(!admin) {
+      return res.json({msg: "We are in a pickle!"})
+    }
+
+
+  
+
+    const {prog_name} = req.body
+
+    if(!prog_name) {
+      return res.json({msg: "program name is required."})
+    }
+
+    await Program.create({
+ prog_id: generateProgId(),
+ prog_name
+
+    })
+      
+
+    
+     res.json({message: "A new program has been successfully added.."})
+
+  
+} catch (error) {
+     console.log(`failed to create program, ${error}`)
+  return res.json({msg: "failed to create program"})
+
+}
+
+})
+
+
+AdminAuth.get('/admin/program-students/:id', verify, verifyAdmin, async(req, res) => {
+try {
+  const {id} = req.params
+  if(!req.user || !id) {
+      return res.json({msg: "Authorization Error!"})
+    }
+  console.log(id)
+    const admin = await User.findOne({_id: req.user._id, role: 'admin'})
+
+    if(!admin) {
+      return res.json({msg: "We are in a pickle!"})
+    }
+
+  const students = await User.find({program: id})
+ 
+  if(!students || students.length === 0) {
+    return res.json({msg: "This program has no enrolled students"})
+  }
+
+res.json({students})
+
+} catch (error) {
+  
+    console.log(`failed to get program enrolled students, ${error}`)
+  return res.json({msg: "failed to get program enrolled students"})
+ 
+}
 
 })
 
