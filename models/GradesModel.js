@@ -1,33 +1,37 @@
 import mongoose from "mongoose";
-
-const GradesSchema = mongoose.Schema({
- lctr: {
+const GradesSchema = mongoose.Schema(
+{
+  lctr: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: "User",
     required: true
- },
+  },
+
   student: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: "User",
     required: true
- },
+  },
 
- module_name: {
-  type: String,
-  required: true
-
- },
- grades_list: {
+  program: {
     type: String,
     required: true
- }
+  },
 
+  module_name: {
+    type: String,
+    required: true
+  },
 
+  grade: {
+    type: String,
+    required: true
+  }
 
+},
+{
+  timestamps: true
+}
+);
 
-}, {
-    timestamps: true
-})
-
-
-export default mongoose.model('Grades', GradesSchema)
+export default mongoose.model("Grades", GradesSchema);

@@ -58,14 +58,14 @@ async function Lecturer() {
           <i class="ti ti-report-analytics"></i>
         </div>
 
-        <h3>Send Grades To Students</h3>
+        <h3>My Program and Students</h3>
 
         <p>
-          Upload and manage student grades for all assigned courses.
+          Manage program and student grades enrolled to courses.
         </p>
 
         <a href="/sendgrades" class="dashboard-btn">
-          Send Grades
+          Manage
         </a>
 
       </div>
