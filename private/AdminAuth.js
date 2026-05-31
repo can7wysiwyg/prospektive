@@ -556,7 +556,7 @@ try {
   if(!req.user || !id) {
       return res.json({msg: "Authorization Error!"})
     }
-  console.log(id)
+  
     const admin = await User.findOne({_id: req.user._id, role: 'admin'})
 
     if(!admin) {
