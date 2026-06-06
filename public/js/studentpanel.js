@@ -1,156 +1,60 @@
-const stuPanelCon = document.getElementById('stuPanelCon')
-const schoolkey = localStorage.getItem('schoolKey') 
+const stuPanelCon = document.getElementById('stuPanelCon');
+const schoolkey = localStorage.getItem('schoolKey');
 
 async function StudentPanel() {
-    try {
-        stuPanelCon.innerHTML = `
-                <div class="hero__ctas__cats d-flex justify-content-center align-items-center" style="min-height: 180px;">
-    <div class="loading-spinner text-center main-spinner">
-        <div class="spinner-border ls-text" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-        <p class="mt-2">Loading Student...</p>
-    </div>
-</div> 
+  try {
+    stuPanelCon.innerHTML = `
+      <div class="main-spinner text-center"><div class="spinner-border" role="status"></div><p class="mt-2" style="color:var(--muted);font-size:13px;">Loading…</p></div>`;
 
-        
-        `
+    if (!schoolkey) { window.location.href = '/'; return; }
 
-        if(!schoolkey) {
-            window.location.href = "/"
-            return;
-        }
+    const res = await fetch('/auth/user-details', {
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${schoolkey}` }
+    });
+    const data = await res.json();
 
-         const response = await fetch(`/auth/user-details`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${schoolkey}`
-        }
-    })
-
- 
-    const data = await response.json();
-   
-    if(data.msg) {
-                localStorage.removeItem('schoolKey')
-
-        return adminCon.innerHTML = `
-        <p class="text-danger text-center">${data.msg} </p>
-        `
+    if (data.msg) {
+      localStorage.removeItem('schoolKey');
+      stuPanelCon.innerHTML = `<p class="text-danger text-center">${data.msg}</p>`;
+      return;
     }
 
-
-    if(data?.user?.role === "student") {
-       
-        stuPanelCon.innerHTML = `
-
-
-<div class="container student-panel">
-
-  <!-- WELCOME -->
-  <div class="welcome-box">
-
-    <h2>
-      Welcome, <span class="text-danger">${data.user.fullname}</span>
-    </h2>
-
-    <p>
-      Access your profile, check grades, and monitor fees status from your student dashboard.
-    </p>
-
-  </div>
-
-  <!-- CARDS -->
-  <div class="row g-4">
-
-    <!-- PROFILE -->
-    <div class="col-md-4">
-
-      <div class="panel-card">
-
-        <div class="panel-icon">
-          <i class="ti ti-user"></i>
+    if (data?.user?.role === 'student') {
+      stuPanelCon.innerHTML = `
+        <div class="welcome-banner">
+          <h2>Welcome back, <span class="name-highlight">${data.user.fullname}</span></h2>
+          <p>Access your profile, view your grades, and check your fees status from here.</p>
         </div>
 
-        <h4>Profile</h4>
-
-        <p>
-          View your personal information and academic details.
-        </p>
-
-        <a href="/myprofile" class="panel-btn">
-          <i class="ti ti-arrow-right"></i>
-          Open Profile
-        </a>
-
-      </div>
-
-    </div>
-
-    <!-- GRADES -->
-    <div class="col-md-4">
-
-      <div class="panel-card">
-
-        <div class="panel-icon">
-          <i class="ti ti-clipboard-data"></i>
+        <div class="page-header" style="margin-top:8px;">
+          <h1>Student Dashboard</h1>
+          <p>Everything you need in one place.</p>
         </div>
 
-        <h4>Grades</h4>
-
-        <p>
-          View grades and academic performance for all modules.
-        </p>
-
-        <a href="/viewgrades" class="panel-btn">
-          <i class="ti ti-arrow-right"></i>
-          View Grades
-        </a>
-
-      </div>
-
-    </div>
-
-    <!-- FEES -->
-    <div class="col-md-4">
-
-      <div class="panel-card">
-
-        <div class="panel-icon">
-          <i class="ti ti-cash"></i>
-        </div>
-
-        <h4>Fees</h4>
-
-        <p>
-          Monitor fee payments and financial account status.
-        </p>
-
-        <a href="/myfees" class="panel-btn">
-          <i class="ti ti-arrow-right"></i>
-          View Fees
-        </a>
-
-      </div>
-
-    </div>
-
-  </div>
-
-</div>
-
-`;
-
+        <div class="card-grid">
+          <div class="portal-card">
+            <div class="portal-card-icon"><i class="ti ti-user"></i></div>
+            <h4>My Profile</h4>
+            <p>View your personal information and academic details.</p>
+            <a href="/myprofile" class="portal-btn"><i class="ti ti-arrow-right"></i> Open Profile</a>
+          </div>
+          <div class="portal-card">
+            <div class="portal-card-icon"><i class="ti ti-clipboard-data"></i></div>
+            <h4>My Grades</h4>
+            <p>View your academic performance and module grade breakdown.</p>
+            <a href="/viewgrades" class="portal-btn"><i class="ti ti-arrow-right"></i> View Grades</a>
+          </div>
+          <div class="portal-card">
+            <div class="portal-card-icon"><i class="ti ti-cash"></i></div>
+            <h4>Fees & Payments</h4>
+            <p>Monitor your fee payment status and financial account.</p>
+            <a href="/myfees" class="portal-btn"><i class="ti ti-arrow-right"></i> View Fees</a>
+          </div>
+        </div>`;
     }
-
-
-
-    } catch (error) {
-        return stuPanelCon.innerHTML = `
-        <p class="text-center">Failed to load the page </p>
-        `
-    }
+  } catch (err) {
+    stuPanelCon.innerHTML = `<p class="text-center text-danger">Failed to load dashboard.</p>`;
+  }
 }
 
-document.addEventListener('DOMContentLoaded', StudentPanel)
+document.addEventListener('DOMContentLoaded', StudentPanel);

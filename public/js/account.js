@@ -1,147 +1,89 @@
-const accouCon = document.getElementById('accouCon')
-     const schoolKey = localStorage.getItem('schoolKey')
-
+const accouCon = document.getElementById('accouCon');
+const schoolKey = localStorage.getItem('schoolKey');
 
 async function Login() {
-    try {
+  try {
+    if (schoolKey) {
+      window.location.href = '/';
+      return;
+    }
 
-        if(schoolKey) {
-            window.location.href = "/"
-            return;
-        }
+    accouCon.innerHTML = `
+      <div class="signin-container">
+        <div class="signin-logo">DB</div>
+        <h1>Welcome Back</h1>
+        <p class="subtitle">Sign in to your portal account</p>
 
-        accouCon.innerHTML = `
-        <div class="form-center">
-          <div class="signin-container">
-
-    <div class="logo">
-      DB
-    </div>
-
-    <h1 class="title">Welcome Back</h1>
-    <p class="subtitle">
-      Sign in to continue
-    </p>
-
-    <form id="logForm">
-
-      <div class="form-group">
-        <label>Email Address</label>
-        <input 
-          type="email" 
-          class="form-control"
-          id="email"
-          placeholder="Enter your email"
-          required
-        />
-      </div>
-
-      <div class="form-group">
-        <label>Password</label>
-        <input 
-          type="password" 
-          id="password"
-          class="form-control"
-          placeholder="Enter your password"
-          required
-        />
-      </div>
-
-      <div class="form-options">
-
-        
-        <a href="/forgot" class="forgot">
-          Forgot Password?
-        </a>
-
-      </div>
-
-      <button class="signin-btn sgnBtn" type="submit">
-        Sign In
-      </button>
-
-    </form>
-
-    <div class="bottom-text">
+        <form id="logForm">
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input type="email" class="form-control" id="email" placeholder="you@school.ac.mw" required />
           </div>
 
-  </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-control" id="password" placeholder="Enter your password" required />
+          </div>
 
+          <div class="form-options">
+            <label class="remember">
+              <input type="checkbox" /> Remember me
+            </label>
+            <a href="/forgot" class="forgot">Forgot password?</a>
+          </div>
 
-        </div>
-        
-        
-        `
+          <button class="signin-btn sgnBtn" type="submit">Sign In</button>
+        </form>
 
+        <div class="bottom-text" id="signInStatus"></div>
+      </div>
+    `;
 
-        document.getElementById('logForm').addEventListener('submit', async(e) => {
-            e.preventDefault();
-            const sgnBtn = document.querySelector('.sgnBtn')
-            const subtitle = document.querySelector('.subtitle')
-            const original = sgnBtn.textContent
-            sgnBtn.disabled = true
-            sgnBtn.textContent = "Signing You In..."
+    document.getElementById('logForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const sgnBtn = document.querySelector('.sgnBtn');
+      const status = document.getElementById('signInStatus');
+      sgnBtn.disabled = true;
+      sgnBtn.textContent = 'Signing in…';
 
-            try {
-                const email = document.getElementById('email').value.trim()
-                const password = document.getElementById('password').value 
+      try {
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
 
-                if(!email || !password) {
-                    sgnBtn.disabled = false
-                sgnBtn.textContent = original
+        if (!email || !password) {
+          sgnBtn.disabled = false;
+          sgnBtn.textContent = 'Sign In';
+          status.innerHTML = `<span class="text-danger">Email and password are required.</span>`;
+          return;
+        }
 
-                return subtitle.innerHTML = `
-                <span class="text-danger">email and password are required </span>
-                `
-                }
+        const res = await fetch('/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
 
+        const data = await res.json();
 
-                const request = await fetch('/auth/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({email, password})
-                })
+        if (data?.msg) {
+          sgnBtn.disabled = false;
+          sgnBtn.textContent = 'Sign In';
+          status.innerHTML = `<span class="text-danger">${data.msg}</span>`;
+        } else if (data?.schoolKey) {
+          localStorage.setItem('schoolKey', data.schoolKey);
+          window.location.href = '/';
+        }
+      } catch (err) {
+        sgnBtn.disabled = false;
+        sgnBtn.textContent = 'Sign In';
+        document.getElementById('signInStatus').innerHTML =
+          `<span class="text-danger">Could not connect. Please try again.</span>`;
+      }
+    });
 
-                const response = await request.json()
-
-                 if(response?.msg) {
-                   sgnBtn.disabled = false
-                sgnBtn.textContent = original
-
-                return subtitle.innerHTML = `
-                <span class="text-danger">${response.msg} </span>
-                ` 
-                 } else if(response?.schoolKey) {
-                    localStorage.setItem('schoolKey', response?.schoolKey)
-                    window.location.href = "/"
-                 }
-
-
-
-
-                
-            } catch (error) {
-                sgnBtn.disabled = false
-                sgnBtn.textContent = original
-
-                return subtitle.innerHTML = `
-                <span class="text-danger">Failed to sign you in </span>
-                `
- 
-                
-            }
-
-
-
-        })
-        
-    } catch (error) {
-        return accouCon.innerHTML = `
-        <p class="text-center"> there was a problem loading this page </p>
-        `
-    }
+  } catch (err) {
+    accouCon.innerHTML = `<p class="text-center text-danger">Failed to load sign-in page.</p>`;
+  }
 }
 
-document.addEventListener('DOMContentLoaded', Login)
+document.addEventListener('DOMContentLoaded', Login);

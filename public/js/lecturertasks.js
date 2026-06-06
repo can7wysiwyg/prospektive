@@ -1,95 +1,47 @@
-const lecTaskCon = document.getElementById('lecTaskCon')
-const schoolkey = localStorage.getItem('schoolKey') 
-
+const lecTaskCon = document.getElementById('lecTaskCon');
+const schoolkey = localStorage.getItem('schoolKey');
 
 async function Lecturer() {
-    try {
-        lecTaskCon.innerHTML = `
-                <div class="hero__ctas__cats d-flex justify-content-center align-items-center" style="min-height: 180px;">
-    <div class="loading-spinner text-center main-spinner">
-        <div class="spinner-border ls-text" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-        <p class="mt-2">Loading Lecturer...</p>
-    </div>
-</div> 
+  try {
+    lecTaskCon.innerHTML = `
+      <div class="main-spinner text-center"><div class="spinner-border" role="status"></div><p class="mt-2" style="color:var(--muted);font-size:13px;">Loading…</p></div>`;
 
-        
-        `
+    if (!schoolkey) { window.location.href = '/'; return; }
 
+    const res = await fetch('/auth/user-details', {
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${schoolkey}` }
+    });
+    const data = await res.json();
 
-        if(!schoolkey) {
-            window.location.href = "/"
-            return;
-        }
-
-         const response = await fetch(`/auth/user-details`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${schoolkey}`
-        }
-    })
-
- 
-    const data = await response.json();
-   
-    if(data.msg) {
-                localStorage.removeItem('schoolKey')
-
-        return lecTaskCon.innerHTML = `
-        <p class="text-danger text-center">${data.msg} </p>
-        `
+    if (data.msg) {
+      localStorage.removeItem('schoolKey');
+      lecTaskCon.innerHTML = `<p class="text-danger text-center">${data.msg}</p>`;
+      return;
     }
 
-
-    if(data?.user?.role === "lecturer") {
-
-        lecTaskCon.innerHTML = `
-                <div class="container py-5">
-
-  <div class="row justify-content-center">
-
-    <div class="col-md-5">
-
-      <div class="dashboard-card">
-
-        <div class="card-icon">
-          <i class="ti ti-report-analytics"></i>
+    if (data?.user?.role === 'lecturer') {
+      lecTaskCon.innerHTML = `
+        <div class="welcome-banner">
+          <h2>Welcome, <span class="name-highlight">${data.user.fullname}</span></h2>
+          <p>Manage your program, view enrolled students, and upload academic results.</p>
         </div>
 
-        <h3>My Program and Students</h3>
+        <div class="page-header" style="margin-top:8px;">
+          <h1>Lecturer Dashboard</h1>
+        </div>
 
-        <p>
-          Manage program and student grades enrolled to courses.
-        </p>
-
-        <a href="/sendgrades" class="dashboard-btn">
-          Manage
-        </a>
-
-      </div>
-
-    </div>
-
-  </div>
-
-</div>
-                   
-        
-        `
-
+        <div class="card-grid">
+          <div class="portal-card">
+            <div class="portal-card-icon"><i class="ti ti-report-analytics"></i></div>
+            <h4>My Program & Students</h4>
+            <p>Manage your assigned program, view enrolled students, and upload grade results.</p>
+            <a href="/sendgrades" class="portal-btn"><i class="ti ti-arrow-right"></i> Manage</a>
+          </div>
+        </div>`;
     }
-
-
-
-        
-    } catch (error) {
-        return lecTaskCon.innerHTML = `
-        <p class="text-center">Failed to load page </p>
-        `
-    }
+  } catch (err) {
+    lecTaskCon.innerHTML = `<p class="text-center text-danger">Failed to load page.</p>`;
+  }
 }
 
-
-document.addEventListener('DOMContentLoaded', Lecturer)
+document.addEventListener('DOMContentLoaded', Lecturer);

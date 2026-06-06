@@ -1,163 +1,61 @@
-const uProfCon = document.getElementById('uProfCon')
-const schoolkey = localStorage.getItem('schoolKey') 
-
+const uProfCon = document.getElementById('uProfCon');
+const schoolkey = localStorage.getItem('schoolKey');
 
 async function MyProfile() {
-    try {
-        uProfCon.innerHTML = `
-                <div class="hero__ctas__cats d-flex justify-content-center align-items-center" style="min-height: 180px;">
-    <div class="loading-spinner text-center main-spinner">
-        <div class="spinner-border ls-text" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-        <p class="mt-2">Loading Student Profile...</p>
-    </div>
-</div> 
+  try {
+    uProfCon.innerHTML = `<div class="main-spinner text-center"><div class="spinner-border" role="status"></div><p class="mt-2" style="color:var(--muted);font-size:13px;">Loading profile…</p></div>`;
 
-        
-        `
+    if (!schoolkey) { window.location.href = '/'; return; }
 
-        if(!schoolkey) {
-            window.location.href = "/"
-            return;
-        }
+    const res = await fetch('/auth/user-details', {
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${schoolkey}` }
+    });
+    const data = await res.json();
 
-         const response = await fetch(`/auth/user-details`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${schoolkey}`
-        }
-    })
+    if (data.msg) { localStorage.removeItem('schoolKey'); uProfCon.innerHTML = `<p class="text-danger text-center">${data.msg}</p>`; return; }
 
- 
-    const data = await response.json();
-   
-    if(data.msg) {
-                localStorage.removeItem('schoolKey')
+    if (data?.user?.role === 'student') {
+      const stuRes = await fetch('/student/get-student', {
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${schoolkey}` }
+      });
+      const stuData = await stuRes.json();
 
-        return uProfCon.innerHTML = `
-        <p class="text-danger text-center">${data.msg} </p>
-        `
-    }
+      if (stuData.msg) { uProfCon.innerHTML = `<p class="text-danger text-center">${stuData.msg}</p>`; return; }
 
+      const student = stuData.student;
 
-    if(data?.user?.role === "student") {
-
-       const reqStud = await fetch('/student/get-student', {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${schoolkey}`
-        }
-
-       })
-
-       const resStud = await reqStud.json()
-
-       if(resStud.msg) {
-             return uProfCon.innerHTML = `
-        <p class="text-danger text-center">${resStud.msg} </p>
-        `
-
-       }
-
-       const student = resStud.student;
-
-uProfCon.innerHTML = `
-
-
-<div class="container profile-wrapper">
-
-  <div class="row justify-content-center">
-
-    <div class="col-md-6">
-
-      <div class="profile-card">
-
-        <div class="avatar">
-          <i class="ti ti-user"></i>
+      uProfCon.innerHTML = `
+        <div class="page-header">
+          <h1>My Profile</h1>
+          <p>Your personal and academic information.</p>
         </div>
 
-        <h3 class="profile-title">
-          My Profile
-        </h3>
+        <div class="profile-card">
+          <div class="avatar"><i class="ti ti-user"></i></div>
+          <h3 class="profile-title">${student.fullname}</h3>
 
-        <form>
-
-          <!-- FULLNAME -->
           <div class="mb-3">
             <label class="form-label">Full Name</label>
-            <input 
-              type="text"
-              class="form-control"
-              value="${student.fullname}"
-              disabled
-            />
+            <input type="text" class="form-control" value="${student.fullname}" disabled />
           </div>
-
-          <!-- EMAIL -->
           <div class="mb-3">
-            <label class="form-label">Email</label>
-            <input 
-              type="email"
-              class="form-control"
-              value="${student.email}"
-              disabled
-            />
+            <label class="form-label">Email Address</label>
+            <input type="email" class="form-control" value="${student.email}" disabled />
           </div>
-
-          <!-- PHONE -->
           <div class="mb-3">
             <label class="form-label">Phone</label>
-            <input 
-              type="text"
-              class="form-control"
-              value="${student.phone}"
-              disabled
-            />
+            <input type="text" class="form-control" value="${student.phone}" disabled />
           </div>
-
-          <!-- PASSWORD -->
           <div class="mb-4">
             <label class="form-label">Password</label>
-            <input 
-              type="password"
-              class="form-control"
-              value="************"
-              disabled
-            />
+            <input type="password" class="form-control" value="************" disabled />
           </div>
-
-          <!-- UPDATE BUTTON -->
-          <button 
-            type="button"
-            class="update-btn"
-            disabled
-          >
-            Update Profile
-          </button>
-
-        </form>
-
-      </div>
-
-    </div>
-
-  </div>
-
-</div>
-
-`;
-
+          <button type="button" class="update-btn" disabled>Update Profile</button>
+        </div>`;
     }
-        
-    } catch (error) {
-        return uProfCon.innerHTML = `
-        <p class="text-center">Failed to load profile </p>
-        `
-    }
+  } catch (err) {
+    uProfCon.innerHTML = `<p class="text-center text-danger">Failed to load profile.</p>`;
+  }
 }
 
-
-document.addEventListener('DOMContentLoaded', MyProfile)
+document.addEventListener('DOMContentLoaded', MyProfile);
