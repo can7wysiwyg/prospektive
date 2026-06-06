@@ -16,7 +16,7 @@ const PAGE_TITLES = {
   '/systemstudents': { label: 'Students',           icon: 'ti-id' },
   '/progsstudents':  { label: 'Programs',           icon: 'ti-certificate' },
   '/lecturertasks':  { label: 'My Tasks',           icon: 'ti-layout-dashboard' },
-  '/sendgrades':     { label: 'Manage Grades',      icon: 'ti-report-analytics' },
+  '/sendgrades':     { label: 'Send Grades',      icon: 'ti-report-analytics' },
   '/account':        { label: 'Sign In',            icon: 'ti-login' },
 };
 
@@ -50,8 +50,8 @@ function buildLecturerNav(active) {
   return `
     <div class="sidebar-section">
       <div class="sidebar-section-label">Lecturer</div>
-      ${navLink('/lecturertasks','ti-layout-dashboard','Dashboard', active)}
-      ${navLink('/sendgrades','ti-report-analytics','Manage Grades', active)}
+      ${navLink('/lecturertasks','ti-layout-dashboard','My Tasks', active)}
+      ${navLink('/sendgrades','ti-report-analytics','Send Grades', active)}
     </div>`;
 }
 

@@ -74,13 +74,13 @@ sendGradesCon.innerHTML = `
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
 
       <div>
-        <h4 class="mb-1">
+        <h4 class="mb-1" >
           <i class="ti ti-school me-2"></i>
-          ${details?.name || "Unknown Program"}
+         <span id="modulename"> ${details?.name }</span>
         </h4>
 
-        <p class="text-muted mb-0">
-          Program ID: ${details?.id || "N/A"}
+        <p class="text-muted mb-0" >
+        <span id="programId">${details?.id }</span>
         </p>
       </div>
 
@@ -200,7 +200,7 @@ sendGradesCon.innerHTML = `
 
         <input
           type="hidden"
-          id="programId">
+          >
 
         
         <div class="mb-3">
@@ -222,7 +222,7 @@ sendGradesCon.innerHTML = `
       <div class="modal-footer">
 
         <button
-          type="button"
+          type="submit"
           class="btn btn-primary"
           id="importGradesBtn">
 
@@ -248,9 +248,8 @@ document.addEventListener('click', async (e) => {
   if (!btn) return;
 
   const file = document.getElementById('gradesFile').files[0];
-  const module_name = document.getElementById('moduleName').value;
-  const program = document.getElementById('programId').value;
-
+  const module_name = document.getElementById('modulename').textContent.trim();
+const program = document.getElementById('programId').textContent.trim();
   if (!file || !module_name) {
     alert("Missing data");
     return;
