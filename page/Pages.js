@@ -194,6 +194,19 @@ try {
 })
 
 
+Pages.get('/courses', async(req, res) => {
+try {
+
+    res.render('courses')
+    
+} catch (error) {
+    console.error(`failed to load courses page, ${error}`)
+    return res.redirect('/')
+}
+
+})
+
+
 
 
 
