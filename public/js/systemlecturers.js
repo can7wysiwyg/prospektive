@@ -100,9 +100,9 @@ async function ViewLecturers() {
 
 
             <div style="margin-bottom:24px;">
-              <label style="display:block; margin-bottom:8px; font-weight:600;">Assign Program <span style="color:red;">*</span></label>
+              <label style="display:block; margin-bottom:8px; font-weight:600;">Assign To A Department <span style="color:red;">*</span></label>
               <select id="programm" required style="width:100%; padding:14px; border:1px solid #ddd; border-radius:8px;">
-                <option value="">Select Program</option>
+                <option value="">Select Department</option>
 
                 ${
                   resProgs?.programs?.map(item => `

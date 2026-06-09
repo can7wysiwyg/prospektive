@@ -1,3 +1,188 @@
+// ── PDF Generation ────────────────────────────────────────────
+async function generateClearancePDF(user, fees) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+
+  const pageW = doc.internal.pageSize.getWidth();
+  const pageH = doc.internal.pageSize.getHeight();
+  const margin = 20;
+  const contentW = pageW - margin * 2;
+
+  // ── helpers ──────────────────────────────────────────────────
+  const centerText = (text, y, size = 12, style = 'normal', color = [20, 30, 70]) => {
+    doc.setFontSize(size);
+    doc.setFont('helvetica', style);
+    doc.setTextColor(...color);
+    doc.text(text, pageW / 2, y, { align: 'center' });
+  };
+
+  const leftText = (text, x, y, size = 11, style = 'normal', color = [30, 30, 30]) => {
+    doc.setFontSize(size);
+    doc.setFont('helvetica', style);
+    doc.setTextColor(...color);
+    doc.text(text, x, y);
+  };
+
+  const rightText = (text, x, y, size = 11, style = 'normal', color = [30, 30, 30]) => {
+    doc.setFontSize(size);
+    doc.setFont('helvetica', style);
+    doc.setTextColor(...color);
+    doc.text(text, x, y, { align: 'right' });
+  };
+
+  const drawLine = (y, color = [200, 200, 200], thickness = 0.3) => {
+    doc.setDrawColor(...color);
+    doc.setLineWidth(thickness);
+    doc.line(margin, y, pageW - margin, y);
+  };
+
+  const drawRect = (x, y, w, h, fillColor) => {
+    doc.setFillColor(...fillColor);
+    doc.roundedRect(x, y, w, h, 2, 2, 'F');
+  };
+
+  // ── HEADER BAND ───────────────────────────────────────────────
+  doc.setFillColor(14, 30, 70); // navy
+  doc.rect(0, 0, pageW, 42, 'F');
+
+  // Gold accent bar
+  doc.setFillColor(212, 175, 55);
+  doc.rect(0, 42, pageW, 3, 'F');
+
+  // School name
+  centerText('DON BOSCO COLLEGE', 16, 16, 'bold', [255, 255, 255]);
+  centerText('Office of Academic Affairs', 24, 9, 'normal', [200, 200, 200]);
+  centerText('STUDENT FEE CLEARANCE CERTIFICATE', 34, 10, 'bold', [212, 175, 55]);
+
+  // ── DOCUMENT META (top right) ─────────────────────────────────
+  const now = new Date();
+  const docDate = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  const refNo   = `REF-${user.student_reg || 'N/A'}-${now.getFullYear()}`;
+
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(180, 180, 180);
+  doc.text(`Issued: ${docDate}`, pageW - margin, 10, { align: 'right' });
+  doc.text(`Ref: ${refNo}`, pageW - margin, 16, { align: 'right' });
+
+  // ── CLEARANCE STATUS BADGE ────────────────────────────────────
+  const badgeY = 54;
+  drawRect(margin, badgeY, contentW, 18, [220, 252, 231]); // green bg
+  doc.setDrawColor(134, 239, 172);
+  doc.setLineWidth(0.5);
+  doc.roundedRect(margin, badgeY, contentW, 18, 2, 2, 'S');
+
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(22, 163, 74);
+  doc.text('✓  CLEARED — Fees Fully Settled', pageW / 2, badgeY + 11, { align: 'center' });
+
+  // ── STUDENT DETAILS ───────────────────────────────────────────
+  let y = 85;
+  leftText('STUDENT INFORMATION', margin, y, 8, 'bold', [120, 120, 120]);
+  y += 2; drawLine(y, [220, 220, 220]);
+  y += 7;
+
+  const details = [
+    ['Full Name',    user.fullname   || 'N/A'],
+    ['Reg Number',   user.student_reg || 'N/A'],
+    ['Programme',    user.program     || 'N/A'],
+    ['Academic Year','2025 / 2026'],
+    ['Status',       'Cleared'],
+  ];
+
+  details.forEach(([label, value]) => {
+    leftText(label,  margin,      y, 10, 'normal', [100, 100, 100]);
+    leftText(value,  margin + 48, y, 10, 'bold',   [20, 30, 70]);
+    y += 9;
+  });
+
+  // ── FEE BREAKDOWN TABLE ───────────────────────────────────────
+  y += 4;
+  leftText('FEE BREAKDOWN', margin, y, 8, 'bold', [120, 120, 120]);
+  y += 2; drawLine(y, [220, 220, 220]);
+  y += 2;
+
+  // Table header
+  drawRect(margin, y, contentW, 10, [14, 30, 70]);
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(255, 255, 255);
+  doc.text('Description',  margin + 4,           y + 6.5);
+  doc.text('Amount (MWK)', pageW - margin - 4,   y + 6.5, { align: 'right' });
+  doc.text('Status',       pageW - margin - 50,  y + 6.5, { align: 'center' });
+  y += 10;
+
+  FEE_STRUCTURE.forEach((item, i) => {
+    const rowBg = i % 2 === 0 ? [255, 255, 255] : [248, 248, 245];
+    drawRect(margin, y, contentW, 9, rowBg);
+
+    leftText(item.label,                 margin + 4,          y + 6, 9.5, 'normal', [30, 30, 60]);
+    rightText(formatMWK(item.amount),    pageW - margin - 50, y + 6, 9.5, 'normal', [30, 30, 60]);
+
+    // Paid badge
+    drawRect(pageW - margin - 46, y + 1.5, 20, 6, [220, 252, 231]);
+    doc.setFontSize(7.5);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(22, 163, 74);
+    doc.text('PAID', pageW - margin - 36, y + 6, { align: 'center' });
+
+    y += 9;
+  });
+
+  // Total row
+  drawRect(margin, y, contentW, 11, [14, 30, 70]);
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(255, 255, 255);
+  doc.text('TOTAL', margin + 4, y + 7.5);
+  doc.setTextColor(212, 175, 55);
+  rightText(formatMWK(TOTAL_FEE), pageW - margin - 50, y + 7.5, 10, 'bold', [212, 175, 55]);
+  y += 11;
+
+  // ── OFFICIAL NOTE ─────────────────────────────────────────────
+  y += 10;
+  drawRect(margin, y, contentW, 22, [248, 249, 250]);
+  doc.setDrawColor(200, 200, 200);
+  doc.setLineWidth(0.3);
+  doc.roundedRect(margin, y, contentW, 22, 2, 2, 'S');
+
+  doc.setFontSize(8.5);
+  doc.setFont('helvetica', 'bolditalic');
+  doc.setTextColor(60, 60, 60);
+  doc.text('Official Note', margin + 5, y + 7);
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.setTextColor(90, 90, 90);
+  const note = `This certificate confirms that ${user.fullname || 'the above student'} has fulfilled all financial obligations ` +
+    `for the academic year 2025/2026 and is duly cleared to sit examinations and participate in all academic activities.`;
+  const noteLines = doc.splitTextToSize(note, contentW - 10);
+  doc.text(noteLines, margin + 5, y + 13);
+  y += 22;
+
+  // ── SIGNATURE AREA ────────────────────────────────────────────
+  y += 14;
+  drawLine(y, [100, 100, 100], 0.5);
+  y += 5;
+  leftText('Registrar / Accounts Office',  margin,            y, 9, 'normal', [80, 80, 80]);
+  rightText(`Date: ${docDate}`,            pageW - margin,    y, 9, 'normal', [80, 80, 80]);
+
+  // ── FOOTER ────────────────────────────────────────────────────
+  doc.setFillColor(14, 30, 70);
+  doc.rect(0, pageH - 16, pageW, 16, 'F');
+
+  doc.setFontSize(7.5);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(180, 180, 180);
+  doc.text('This is a computer-generated document. No signature is required.',  pageW / 2, pageH - 9,  { align: 'center' });
+  doc.text('Don Bosco College — Academic Affairs Portal',                        pageW / 2, pageH - 4,  { align: 'center' });
+
+  // ── SAVE ──────────────────────────────────────────────────────
+  doc.save(`Clearance_${user.student_reg || 'student'}_${now.getFullYear()}.pdf`);
+}
+
+
 const myFeesCon = document.getElementById('myFeesCon');
 const schoolkey  = localStorage.getItem('schoolKey');
 
@@ -26,6 +211,16 @@ function spinner() {
 
 async function MyFees() {
   try {
+    // ── Load jsPDF if not already loaded ─────────────────────
+    if (!window.jspdf) {
+      await new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+        s.onload = resolve; s.onerror = reject;
+        document.head.appendChild(s);
+      });
+    }
+
     myFeesCon.innerHTML = spinner();
     if (!schoolkey) { window.location.href = '/'; return; }
 
@@ -180,9 +375,9 @@ async function MyFees() {
               </div>
 
               ${isPaid
-                ? `<button onclick="window.print()" class="portal-btn" style="width:100%;justify-content:center;gap:8px;">
-                     <i class="ti ti-printer"></i> Print Clearance Letter
-                   </button>`
+                ? `<button id="downloadBtn" class="portal-btn" style="width:100%;justify-content:center;gap:8px;">
+  <i class="ti ti-file-download"></i> Download Clearance PDF
+</button>`
                 : `<button id="payBtn" class="portal-btn" style="width:100%;justify-content:center;
                             background:${isPending ? 'var(--muted)' : 'var(--gold)'};
                             ${isPending ? 'cursor:not-allowed;opacity:.7;' : ''}">
@@ -201,6 +396,11 @@ async function MyFees() {
         </div>
 
       </div>`;
+
+      const downloadBtn = document.getElementById('downloadBtn');
+if (downloadBtn && isPaid) {
+  downloadBtn.addEventListener('click', () => generateClearancePDF(user, fees));
+}
 
     // ── Pay button handler ────────────────────────────────────
     const payBtn = document.getElementById('payBtn');
